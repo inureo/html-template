@@ -4,6 +4,24 @@ $    = require('gulp-load-plugins')({
          replaceString: /\bgulp[\-.]/
        })
 
+tsProject = $.typescript.createProject({
+  target: 'ES5',
+  removeComments: true,
+  sortOutput: true
+})
+
+gulp.task 'typescript', ->
+  gulp.src('./src/ts/*.ts')
+  .pipe $.plumber({
+    errorHandler: (error) ->
+      console.log(error.message)
+      this.emit('end')
+  })
+  .pipe $.typescript(tsProject)
+  .pipe $.concat("app.js")
+  .pipe gulp.dest('js/')
+
+
 gulp.task 'sass', ->
   gulp.src('./src/css/style.sass')
   .pipe $.plumber({
@@ -44,6 +62,7 @@ gulp.task 'watch', ->
   gulp.watch('src/css/*.sass', ['sass'])
   gulp.watch('src/css/**/*.sass', ['sass'])
   gulp.watch('src/slim/*.slim', ['slim'])
-  gulp.watch('src/slim/partial/*.slim', ['slim'])
+  gulp.watch('src/slim/**/*.slim', ['slim'])
+  gulp.watch('src/ts/*.ts', ['typescript'])
 
-gulp.task 'default', ['sass', 'server', 'watch']
+gulp.task 'default', ['server', 'watch']
